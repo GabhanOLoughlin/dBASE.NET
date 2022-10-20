@@ -25,7 +25,7 @@
 
             // Read record marker.
             byte marker = reader.ReadByte();
-            Deleted = marker == 0x2A;
+            //Deleted = marker == 0x2A;
             // Read entire record as sequence of bytes.
             // Note that record length includes marker.
             byte[] row = reader.ReadBytes(header.RecordLength - 1);
@@ -36,13 +36,20 @@
             int offset = 0;
             foreach (DbfField field in fields)
             {
-                // Copy bytes from record buffer into field buffer.
-                byte[] buffer = new byte[field.Length];
-                Array.Copy(row, offset, buffer, 0, field.Length);
-                offset += field.Length;
+                try
+                {
+                    // Copy bytes from record buffer into field buffer.
+                    byte[] buffer = new byte[field.Length];
+                    Array.Copy(row, offset, buffer, 0, field.Length);
+                    offset += field.Length;
 
-                IEncoder encoder = EncoderFactory.GetEncoder(field.Type);
-                Data.Add(encoder.Decode(buffer, memoData, encoding));
+                    IEncoder encoder = EncoderFactory.GetEncoder(field.Type);
+                    Data.Add(encoder.Decode(buffer, memoData, encoding));
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
         }
 

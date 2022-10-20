@@ -12,7 +12,7 @@
     /// </summary>
     public class Dbf
     {
-        private DbfHeader header;        
+        private DbfHeader header;
         /// <summary>
         /// Initializes a new instance of the <see cref="Dbf" />.
         /// </summary>
@@ -65,9 +65,9 @@
         /// </summary>
         /// <param name="path">The file to read.</param>
         public void Read(string path,bool loadDeleted = true)
-        {            
-            // Open stream for reading.           
-            using (FileStream baseStream = File.Open(path, FileMode.Open, FileAccess.Read))
+        {
+            // Open stream for reading.
+            using (FileStream baseStream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 string memoPath = GetMemoPath(path);
                 if (memoPath == null)
@@ -76,7 +76,7 @@
                 }
                 else
                 {
-                    using (FileStream memoStream = File.Open(memoPath, FileMode.Open, FileAccess.Read))
+                    using (FileStream memoStream = File.Open(memoPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
                         Read(baseStream, memoStream,loadDeleted);
                     }
@@ -212,11 +212,11 @@
                 }
                 try
                 {
-
-                    
-                    Records.Add(new DbfRecord(reader, header, Fields, memoData, Encoding));
+                    var newRec = new DbfRecord(reader, header, Fields, memoData, Encoding);
+                    Records.Add(newRec);
                 }
                 catch (EndOfStreamException) { }
+                catch (Exception ex) { }
             }
         }
 
@@ -247,14 +247,14 @@
         /// /// <param name="index">the index of the file to be deleted</param>
         public void DeleteRecord(int index)
         {
-            this.Records[index].DeleteRecord();            
+            this.Records[index].DeleteRecord();
         }
         /// <summary>
         /// Delete multiple records from theirs indexes on record list
         /// </summary>
         /// <param name="indexes"></param>
         public void DeleteRecords(params int[] indexes)
-        {            
+        {
             for (int i = 0; i < indexes.Length; i++)
             {
                 DeleteRecord(indexes[i]);
